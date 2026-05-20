@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_065910) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_172811) do
+  create_table "plans", force: :cascade do |t|
+    t.boolean "active"
+    t.datetime "created_at", null: false
+    t.integer "duration_in_days"
+    t.string "name"
+    t.decimal "price"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
