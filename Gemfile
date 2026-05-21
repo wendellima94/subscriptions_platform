@@ -57,8 +57,7 @@ group :development, :test do
   gem "rspec-rails"
   gem "pry"
   gem "faker"
-  gem "bootstrap", "~> 5.3"
-  gem "sassc-rails"
+  gem "tailwindcss-rails"
   gem "bcrypt", "~> 3.1.7"
   gem "fiddle"
 end
