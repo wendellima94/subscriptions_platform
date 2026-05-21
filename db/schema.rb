@@ -12,23 +12,24 @@
 
 ActiveRecord::Schema[8.1].define(version: 2026_05_20_173113) do
   create_table "plans", force: :cascade do |t|
-    t.boolean "active"
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
-    t.integer "duration_in_days"
-    t.string "name"
-    t.decimal "price"
+    t.string "name", null: false
+    t.integer "periodicity", default: 0, null: false
+    t.integer "price_cents", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "subscriptions", force: :cascade do |t|
+    t.datetime "canceled_at"
     t.datetime "created_at", null: false
-    t.datetime "ends_at"
     t.integer "plan_id", null: false
-    t.datetime "starts_at"
-    t.integer "status"
+    t.datetime "started_at"
+    t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["plan_id"], name: "index_subscriptions_on_plan_id"
+    t.index ["user_id"], name: "index_subscriptions_on_active_user", unique: true, where: "status = 1"
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
