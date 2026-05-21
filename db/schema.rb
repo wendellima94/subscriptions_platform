@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_173113) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_171217) do
+  create_table "invoices", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.date "due_on", null: false
+    t.datetime "paid_at"
+    t.date "reference_month", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "subscription_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id", "reference_month"], name: "index_invoices_on_subscription_and_month", unique: true
+    t.index ["subscription_id"], name: "index_invoices_on_subscription_id"
+  end
+
   create_table "plans", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
@@ -43,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_173113) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "invoices", "subscriptions"
   add_foreign_key "subscriptions", "plans"
   add_foreign_key "subscriptions", "users"
 end

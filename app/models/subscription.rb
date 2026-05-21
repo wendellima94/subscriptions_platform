@@ -25,8 +25,6 @@ class Subscription < ApplicationRecord
       .where(user_id: user_id)
       .where.not(id: id)
 
-    if active_subscription.exists?
-      errors.add(:base, "user already has an active subscription")
-    end
+    errors.add(:base, "user already has an active subscription") if active_subscription.exists?
   end
 end
