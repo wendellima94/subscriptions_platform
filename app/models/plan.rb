@@ -7,6 +7,8 @@ class Plan < ApplicationRecord
     quarterly: 1
   }
 
+  scope :active, -> { where(active: true) }
+
   validates :name, presence: true
   validates :periodicity, presence: true
   validates :price_cents, presence: true, numericality: { greater_than: 0 }
