@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_21_171217) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_200511) do
   create_table "invoices", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -47,12 +47,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_171217) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.string "api_token"
     t.datetime "created_at", null: false
     t.string "email", null: false
     t.string "name", null: false
     t.string "password_digest"
     t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["api_token"], name: "index_users_on_api_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

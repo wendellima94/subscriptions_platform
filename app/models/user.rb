@@ -12,4 +12,11 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
+  validates :api_token, uniqueness: true, allow_nil: true
+
+  private
+
+  def generate_api_token
+    self.api_token ||= SecureRandom.hex(24)
+  end
 end

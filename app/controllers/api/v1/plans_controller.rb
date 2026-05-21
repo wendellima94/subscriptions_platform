@@ -1,6 +1,6 @@
 module Api
   module V1
-    class PlansController < ApplicationController
+    class PlansController < BaseController
       def index
         plans = Plan.active.order(:price_cents)
 
