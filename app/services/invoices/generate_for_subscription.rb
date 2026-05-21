@@ -10,6 +10,8 @@ module Invoices
     end
 
     def call
+      return existing_invoice if existing_invoice.present?
+
       Invoice.create!(
         subscription: subscription,
         reference_month: reference_month,
@@ -22,6 +24,13 @@ module Invoices
     private
 
     attr_reader :subscription, :reference_date
+
+    def existing_invoice
+      @existing_invoice ||= Invoice.find_by(
+        subscription: subscription,
+        reference_month: reference_month
+      )
+    end
 
     def reference_month
       reference_date.beginning_of_month
