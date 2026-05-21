@@ -10,6 +10,8 @@ class User < ApplicationRecord
   has_many :plans, through: :subscriptions
   has_many :invoices, through: :subscriptions
 
+  before_create :generate_api_token
+
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
   validates :api_token, uniqueness: true, allow_nil: true
