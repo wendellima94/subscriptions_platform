@@ -111,7 +111,7 @@ RSpec.describe "Api::V1::Invoices", type: :request do
         "Authorization" => "Bearer #{user.api_token}"
       }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
 
       json = JSON.parse(response.body)
 

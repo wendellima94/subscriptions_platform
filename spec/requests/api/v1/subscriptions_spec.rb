@@ -54,7 +54,7 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
            params: { plan_id: inactive_plan.id },
            headers: { "Authorization" => "Bearer #{user.api_token}" }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
 
       body = JSON.parse(response.body)
 
