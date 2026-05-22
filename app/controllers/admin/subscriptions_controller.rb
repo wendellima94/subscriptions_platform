@@ -1,8 +1,5 @@
 module Admin
-  class SubscriptionsController < ApplicationController
-    before_action :require_authentication
-    before_action :require_admin
-
+  class SubscriptionsController < BaseController
     def index
       @status = params[:status]
 

@@ -1,7 +1,5 @@
 module Admin
-  class PlansController < ApplicationController
-    before_action :require_authentication
-    before_action :require_admin
+  class PlansController < BaseController
     before_action :set_plan, only: [ :edit, :update, :destroy ]
 
     def index

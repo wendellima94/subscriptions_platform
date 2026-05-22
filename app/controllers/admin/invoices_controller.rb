@@ -1,8 +1,5 @@
 module Admin
-  class InvoicesController < ApplicationController
-    before_action :require_authentication
-    before_action :require_admin
-
+  class InvoicesController < BaseController
     def index
       @status = params[:status]
       @reference_month = params[:reference_month]
