@@ -1,21 +1,14 @@
 require "rails_helper"
 
-RSpec.describe "Subscriptions", type: :request do
-  describe "POST /subscriptions" do
+RSpec.describe "Subscription page", type: :request do
+  describe "GET /subscription" do
     it "redirects unauthenticated users to login" do
-      plan = Plan.create!(
-        name: "Profissional",
-        periodicity: :monthly,
-        price_cents: 5990,
-        active: true
-      )
-
-      post subscriptions_path, params: { plan_id: plan.id }
+      get subscription_path
 
       expect(response).to redirect_to(login_path)
     end
 
-    it "creates a subscription for authenticated users" do
+    it "shows the authenticated user's active subscription" do
       user = User.create!(
         name: "Customer",
         email: "customer@example.com",
@@ -30,21 +23,50 @@ RSpec.describe "Subscriptions", type: :request do
         active: true
       )
 
+      Subscriptions::Activate.call(user: user, plan: plan)
+
       post login_path, params: {
         email: user.email,
         password: "password123"
       }
 
-      post subscriptions_path, params: { plan_id: plan.id }
+      get subscription_path
 
-      expect(response).to redirect_to(plans_path)
-      expect(flash[:notice]).to eq("Assinatura ativada com sucesso.")
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Minha assinatura")
+      expect(response.body).to include("Profissional")
+      expect(response.body).to include("Invoices")
+    end
+  end
 
-      subscription = user.subscriptions.active.first
+  describe "DELETE /subscription" do
+    it "cancels the authenticated user's active subscription" do
+      user = User.create!(
+        name: "Customer",
+        email: "customer@example.com",
+        password: "password123",
+        role: :customer
+      )
 
-      expect(subscription).to be_present
-      expect(subscription.plan).to eq(plan)
-      expect(subscription.invoices.count).to eq(1)
+      plan = Plan.create!(
+        name: "Profissional",
+        periodicity: :monthly,
+        price_cents: 5990,
+        active: true
+      )
+
+      subscription = Subscriptions::Activate.call(user: user, plan: plan)
+
+      post login_path, params: {
+        email: user.email,
+        password: "password123"
+      }
+
+      delete subscription_path
+
+      expect(response).to redirect_to(subscription_path)
+      expect(subscription.reload).to be_canceled
+      expect(subscription.canceled_at).to be_present
     end
   end
 end

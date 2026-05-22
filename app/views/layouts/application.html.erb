@@ -24,7 +24,7 @@
           <%= link_to "Minha assinatura", subscription_path, class: "text-slate-600 hover:text-slate-900" %>
 
           <% if current_user.role_admin? %>
-            <%= link_to "Admin", "#", class: "text-slate-600 hover:text-slate-900" %>
+            <%= link_to "Admin", admin_plans_path, class: "text-slate-600 hover:text-slate-900" %>
           <% end %>
 
           <span class="hidden text-slate-400 sm:inline">

@@ -1,0 +1,95 @@
+<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-medium uppercase tracking-wide text-blue-600">
+      Administração
+    </p>
+
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+      Planos
+    </h1>
+
+    <p class="mt-2 text-slate-600">
+      Gerencie os planos disponíveis para assinatura.
+    </p>
+  </div>
+
+  <%= link_to "Novo plano",
+              new_admin_plan_path,
+              class: "rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700" %>
+</div>
+
+<section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Plano
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Periodicidade
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Preço
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Status
+          </th>
+
+          <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Ações
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-200 bg-white">
+        <% @plans.each do |plan| %>
+          <tr>
+            <td class="whitespace-nowrap px-6 py-4">
+              <div class="text-sm font-medium text-slate-900">
+                <%= plan.name %>
+              </div>
+            </td>
+
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+              <%= plan.monthly? ? "Mensal" : "Trimestral" %>
+            </td>
+
+            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
+              <%= number_to_currency(plan.price_cents / 100.0, unit: "R$ ", separator: ",", delimiter: ".") %>
+            </td>
+
+            <td class="whitespace-nowrap px-6 py-4 text-sm">
+              <% if plan.active? %>
+                <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                  Ativo
+                </span>
+              <% else %>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                  Inativo
+                </span>
+              <% end %>
+            </td>
+
+            <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+              <div class="flex justify-end gap-2">
+                <%= link_to "Editar",
+                            edit_admin_plan_path(plan),
+                            class: "rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100" %>
+
+                <%= button_to "Remover",
+                              admin_plan_path(plan),
+                              method: :delete,
+                              data: { turbo_confirm: "Tem certeza que deseja remover este plano?" },
+                              class: "rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
