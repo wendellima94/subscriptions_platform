@@ -34,9 +34,11 @@ module Admin
     end
 
     def destroy
-      @plan.destroy
-
-      redirect_to admin_plans_path, notice: "Plano removido com sucesso."
+      if @plan.destroy
+        redirect_to admin_plans_path, notice: "Plano removido com sucesso."
+      else
+        redirect_to admin_plans_path, alert: "Não é possível remover um plano que possui assinaturas."
+      end
     end
 
     private

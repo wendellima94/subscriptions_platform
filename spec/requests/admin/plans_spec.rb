@@ -131,31 +131,41 @@ RSpec.describe "Admin::Plans", type: :request do
   end
 
   describe "DELETE /admin/plans/:id" do
-    it "allows admin users to remove a plan" do
-      admin = User.create!(
-        name: "Admin",
-        email: "admin@example.com",
-        password: "password123",
-        role: :admin
-      )
+    it "does not remove a plan with subscriptions" do
+    admin = User.create!(
+      name: "Admin",
+      email: "admin@example.com",
+      password: "password123",
+      role: :admin
+    )
 
-      plan = Plan.create!(
-        name: "Basic",
-        periodicity: :monthly,
-        price_cents: 2990,
-        active: true
-      )
+    customer = User.create!(
+      name: "Customer",
+      email: "customer@example.com",
+      password: "password123",
+      role: :customer
+    )
 
-      post login_path, params: {
-        email: admin.email,
-        password: "password123"
-      }
+    plan = Plan.create!(
+      name: "Profissional",
+      periodicity: :monthly,
+      price_cents: 5990,
+      active: true
+    )
 
-      expect {
-        delete admin_plan_path(plan)
-      }.to change(Plan, :count).by(-1)
+    Subscriptions::Activate.call(user: customer, plan: plan)
 
-      expect(response).to redirect_to(admin_plans_path)
-    end
+    post login_path, params: {
+      email: admin.email,
+      password: "password123"
+    }
+
+    expect {
+      delete admin_plan_path(plan)
+    }.not_to change(Plan, :count)
+
+    expect(response).to redirect_to(admin_plans_path)
+    expect(flash[:alert]).to eq("Não é possível remover um plano que possui assinaturas.")
+  end
   end
 end
