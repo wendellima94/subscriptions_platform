@@ -1,0 +1,156 @@
+<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-medium uppercase tracking-wide text-blue-600">
+      Administração
+    </p>
+
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+      Invoices
+    </h1>
+
+    <p class="mt-2 text-slate-600">
+      Acompanhe cobranças, vencimentos e pagamentos dos clientes.
+    </p>
+  </div>
+
+  <div class="flex gap-3">
+    <%= link_to "Planos",
+                admin_plans_path,
+                class: "rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+
+    <%= link_to "Assinaturas",
+                admin_subscriptions_path,
+                class: "rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+  </div>
+</div>
+
+<section class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+  <%= form_with url: admin_invoices_path, method: :get, class: "grid gap-4 md:grid-cols-3" do %>
+    <div>
+      <%= label_tag :status, "Status", class: "block text-sm font-medium text-slate-700" %>
+
+      <%= select_tag :status,
+                     options_for_select([["Todos", ""]] + Invoice.statuses.keys.map { |status| [status.titleize, status] }, @status),
+                     class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" %>
+    </div>
+
+    <div>
+      <%= label_tag :reference_month, "Mês de referência", class: "block text-sm font-medium text-slate-700" %>
+
+      <%= month_field_tag :reference_month,
+                          @reference_month,
+                          class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" %>
+    </div>
+
+    <div class="flex items-end gap-3">
+      <%= submit_tag "Filtrar",
+                     class: "rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700" %>
+
+      <%= link_to "Limpar",
+                  admin_invoices_path,
+                  class: "rounded-lg border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+    </div>
+  <% end %>
+</section>
+
+<section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Cliente
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Plano
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Referência
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Vencimento
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Valor
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Status
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Pago em
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-200 bg-white">
+        <% if @invoices.empty? %>
+          <tr>
+            <td colspan="7" class="px-6 py-8 text-center text-sm text-slate-500">
+              Nenhuma invoice encontrada.
+            </td>
+          </tr>
+        <% else %>
+          <% @invoices.each do |invoice| %>
+            <tr>
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="text-sm font-medium text-slate-900">
+                  <%= invoice.subscription.user.name %>
+                </div>
+
+                <div class="text-sm text-slate-500">
+                  <%= invoice.subscription.user.email %>
+                </div>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <%= invoice.subscription.plan.name %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <%= l(invoice.reference_month, format: "%B/%Y") %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <%= l(invoice.due_on) %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
+                <%= number_to_currency(invoice.amount_cents / 100.0, unit: "R$ ", separator: ",", delimiter: ".") %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm">
+                <% if invoice.paid? %>
+                  <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                    paid
+                  </span>
+                <% elsif invoice.expired? %>
+                  <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
+                    expired
+                  </span>
+                <% else %>
+                  <span class="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700">
+                    open
+                  </span>
+                <% end %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <% if invoice.paid_at.present? %>
+                  <%= l(invoice.paid_at.to_date) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

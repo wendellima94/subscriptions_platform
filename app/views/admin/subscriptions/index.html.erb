@@ -1,0 +1,131 @@
+<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-medium uppercase tracking-wide text-blue-600">
+      Administração
+    </p>
+
+    <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+      Assinaturas
+    </h1>
+
+    <p class="mt-2 text-slate-600">
+      Acompanhe as assinaturas dos clientes e filtre por status.
+    </p>
+  </div>
+
+  <%= link_to "Gerenciar planos",
+              admin_plans_path,
+              class: "rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+</div>
+
+<section class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Todas",
+                admin_subscriptions_path,
+                class: "rounded-lg px-4 py-2 text-sm font-semibold #{params[:status].blank? ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}" %>
+
+    <% Subscription.statuses.keys.each do |status| %>
+      <%= link_to status.titleize,
+                  admin_subscriptions_path(status: status),
+                  class: "rounded-lg px-4 py-2 text-sm font-semibold #{params[:status] == status ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}" %>
+    <% end %>
+  </div>
+</section>
+
+<section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Cliente
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Plano
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Status
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Início
+          </th>
+
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Cancelamento
+          </th>
+
+          <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Invoices
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-200 bg-white">
+        <% if @subscriptions.empty? %>
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-sm text-slate-500">
+              Nenhuma assinatura encontrada.
+            </td>
+          </tr>
+        <% else %>
+          <% @subscriptions.each do |subscription| %>
+            <tr>
+              <td class="whitespace-nowrap px-6 py-4">
+                <div class="text-sm font-medium text-slate-900">
+                  <%= subscription.user.name %>
+                </div>
+
+                <div class="text-sm text-slate-500">
+                  <%= subscription.user.email %>
+                </div>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <%= subscription.plan.name %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm">
+                <% if subscription.active? %>
+                  <span class="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                    active
+                  </span>
+                <% elsif subscription.canceled? %>
+                  <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
+                    canceled
+                  </span>
+                <% else %>
+                  <span class="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-700">
+                    pending
+                  </span>
+                <% end %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <% if subscription.started_at.present? %>
+                  <%= l(subscription.started_at.to_date) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                <% if subscription.canceled_at.present? %>
+                  <%= l(subscription.canceled_at.to_date) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+
+              <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium text-slate-900">
+                <%= subscription.invoices.count %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

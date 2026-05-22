@@ -15,8 +15,10 @@ Rails.application.routes.draw do
     post :pay, on: :member
   end
 
-   namespace :admin do
+  namespace :admin do
     resources :plans
+    resources :subscriptions, only: [ :index ]
+    resources :invoices, only: [ :index ]
   end
 
   namespace :api do
