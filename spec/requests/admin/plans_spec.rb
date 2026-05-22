@@ -83,6 +83,7 @@ RSpec.describe "Admin::Plans", type: :request do
       expect(response).to redirect_to(admin_plans_path)
 
       plan = Plan.last
+
       expect(plan.name).to eq("Enterprise")
       expect(plan.periodicity).to eq("quarterly")
       expect(plan.price_cents).to eq(19990)
@@ -131,41 +132,69 @@ RSpec.describe "Admin::Plans", type: :request do
   end
 
   describe "DELETE /admin/plans/:id" do
+    it "allows admin users to remove a plan without subscriptions" do
+      admin = User.create!(
+        name: "Admin",
+        email: "admin@example.com",
+        password: "password123",
+        role: :admin
+      )
+
+      plan = Plan.create!(
+        name: "Basic",
+        periodicity: :monthly,
+        price_cents: 2990,
+        active: true
+      )
+
+      post login_path, params: {
+        email: admin.email,
+        password: "password123"
+      }
+
+      expect {
+        delete admin_plan_path(plan)
+      }.to change(Plan, :count).by(-1)
+
+      expect(response).to redirect_to(admin_plans_path)
+      expect(flash[:notice]).to eq("Plano removido com sucesso.")
+    end
+
     it "does not remove a plan with subscriptions" do
-    admin = User.create!(
-      name: "Admin",
-      email: "admin@example.com",
-      password: "password123",
-      role: :admin
-    )
+      admin = User.create!(
+        name: "Admin",
+        email: "admin@example.com",
+        password: "password123",
+        role: :admin
+      )
 
-    customer = User.create!(
-      name: "Customer",
-      email: "customer@example.com",
-      password: "password123",
-      role: :customer
-    )
+      customer = User.create!(
+        name: "Customer",
+        email: "customer@example.com",
+        password: "password123",
+        role: :customer
+      )
 
-    plan = Plan.create!(
-      name: "Profissional",
-      periodicity: :monthly,
-      price_cents: 5990,
-      active: true
-    )
+      plan = Plan.create!(
+        name: "Profissional",
+        periodicity: :monthly,
+        price_cents: 5990,
+        active: true
+      )
 
-    Subscriptions::Activate.call(user: customer, plan: plan)
+      Subscriptions::Activate.call(user: customer, plan: plan)
 
-    post login_path, params: {
-      email: admin.email,
-      password: "password123"
-    }
+      post login_path, params: {
+        email: admin.email,
+        password: "password123"
+      }
 
-    expect {
-      delete admin_plan_path(plan)
-    }.not_to change(Plan, :count)
+      expect {
+        delete admin_plan_path(plan)
+      }.not_to change(Plan, :count)
 
-    expect(response).to redirect_to(admin_plans_path)
-    expect(flash[:alert]).to eq("Não é possível remover um plano que possui assinaturas.")
-  end
+      expect(response).to redirect_to(admin_plans_path)
+      expect(flash[:alert]).to eq("Não é possível remover um plano que possui assinaturas.")
+    end
   end
 end
