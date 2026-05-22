@@ -90,7 +90,12 @@
         </div>
       </div>
 
-      <div class="mt-6 border-t border-slate-200 pt-6">
+      <div class="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row">
+        <%= button_to "Gerar próxima invoice",
+                      generate_next_invoice_subscription_path,
+                      method: :post,
+                      class: "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+
         <%= button_to "Cancelar assinatura",
                       subscription_path,
                       method: :delete,
@@ -168,6 +173,7 @@
           </thead>
 
           <tbody class="divide-y divide-slate-200 bg-white">
+            <% payable_invoice = @invoices.select(&:open?).min_by(&:reference_month) %>
             <% @invoices.each do |invoice| %>
               <tr>
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
@@ -199,11 +205,16 @@
                 </td>
 
                 <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                  <% if invoice.open? %>
+                 
+                  <% if invoice.open? && invoice == payable_invoice %>
                     <%= button_to "Pagar",
                                   pay_invoice_path(invoice),
                                   method: :post,
                                   class: "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+                  <% elsif invoice.open? %>
+                    <span class="text-xs text-slate-400">
+                      Pague invoices anteriores primeiro
+                    </span>
                   <% else %>
                     <span class="text-slate-400">
                       —

@@ -8,9 +8,13 @@ Rails.application.routes.draw do
   delete "/logout", to: "sessions#destroy", as: :logout
 
   resources :plans, only: [ :index ]
+
   resources :subscriptions, only: [ :create ]
 
-  resource :subscription, only: [ :show, :destroy ]
+  resource :subscription, only: [ :show, :destroy ] do
+    post :generate_next_invoice
+  end
+
   resources :invoices, only: [] do
     post :pay, on: :member
   end

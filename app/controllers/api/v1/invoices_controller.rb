@@ -8,11 +8,15 @@ module Api
 
         Invoices::Pay.call(invoice: invoice)
 
-        render json: {
+         render json: {
           id: invoice.id,
           status: invoice.reload.status,
           paid_at: invoice.paid_at
         }, status: :ok
+      rescue Invoices::PaymentOutOfOrderError
+        render json: {
+          error: "Pay older open invoices first"
+        }, status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Invoice not found" }, status: :not_found
       end

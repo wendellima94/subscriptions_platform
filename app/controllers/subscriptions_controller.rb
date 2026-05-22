@@ -30,4 +30,15 @@ class SubscriptionsController < ApplicationController
 
     redirect_to subscription_path, notice: "Assinatura cancelada com sucesso."
   end
+  def generate_next_invoice
+    subscription = current_user.subscriptions.active.first
+
+    return redirect_to subscription_path, alert: "Nenhuma assinatura ativa encontrada." unless subscription
+
+    Invoices::GenerateNextForSubscription.call(subscription: subscription)
+
+    redirect_to subscription_path, notice: "Próxima invoice gerada com sucesso."
+  rescue ActiveRecord::RecordInvalid
+    redirect_to subscription_path, alert: "Não foi possível gerar a próxima invoice."
+  end
 end
