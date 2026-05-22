@@ -17,13 +17,9 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
         active: true
       )
 
-      headers = {
-        "Authorization" => "Bearer #{user.api_token}"
-      }
-
-      post "/api/v1/subscriptions",
+      post api_v1_subscriptions_path,
            params: { plan_id: plan.id },
-           headers: headers
+           headers: { "Authorization" => "Bearer #{user.api_token}" }
 
       expect(response).to have_http_status(:created)
 
@@ -39,6 +35,33 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
       expect(subscription.invoices.first.amount_cents).to eq(5990)
     end
 
+    it "returns unprocessable entity when plan is inactive" do
+      user = User.create!(
+        name: "Customer",
+        email: "customer@example.com",
+        password: "password123",
+        role: :customer
+      )
+
+      inactive_plan = Plan.create!(
+        name: "Plano antigo",
+        periodicity: :monthly,
+        price_cents: 2990,
+        active: false
+      )
+
+      post api_v1_subscriptions_path,
+           params: { plan_id: inactive_plan.id },
+           headers: { "Authorization" => "Bearer #{user.api_token}" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+
+      body = JSON.parse(response.body)
+
+      expect(body["error"]).to eq("Plan is inactive")
+      expect(user.subscriptions.count).to eq(0)
+    end
+
     it "returns unauthorized without token" do
       plan = Plan.create!(
         name: "Profissional",
@@ -47,7 +70,7 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
         active: true
       )
 
-      post "/api/v1/subscriptions", params: { plan_id: plan.id }
+      post api_v1_subscriptions_path, params: { plan_id: plan.id }
 
       expect(response).to have_http_status(:unauthorized)
 

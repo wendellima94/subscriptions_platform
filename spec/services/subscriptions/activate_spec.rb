@@ -33,5 +33,28 @@ RSpec.describe Subscriptions::Activate do
       expect(invoice.reference_month).to eq(Date.current.beginning_of_month)
       expect(invoice.due_on).to eq(5.days.from_now.to_date)
     end
+
+    it "does not activate an inactive plan" do
+      user = User.create!(
+        name: "Customer",
+        email: "customer@example.com",
+        password: "password123",
+        role: :customer
+      )
+
+      inactive_plan = Plan.create!(
+        name: "Plano antigo",
+        periodicity: :monthly,
+        price_cents: 2990,
+        active: false
+      )
+
+      expect {
+        described_class.call(user: user, plan: inactive_plan)
+      }.to raise_error(Subscriptions::InactivePlanError)
+
+      expect(user.subscriptions.count).to eq(0)
+      expect(Invoice.count).to eq(0)
+    end
   end
 end
