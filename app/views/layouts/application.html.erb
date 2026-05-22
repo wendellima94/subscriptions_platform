@@ -21,7 +21,7 @@
 
         <% if user_signed_in? %>
          <%= link_to "Planos", plans_path, class: "text-slate-600 hover:text-slate-900" %>
-          <%= link_to "Minha assinatura", "#", class: "text-slate-600 hover:text-slate-900" %>
+          <%= link_to "Minha assinatura", subscription_path, class: "text-slate-600 hover:text-slate-900" %>
 
           <% if current_user.role_admin? %>
             <%= link_to "Admin", "#", class: "text-slate-600 hover:text-slate-900" %>

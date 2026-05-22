@@ -9,10 +9,25 @@ class SubscriptionsController < ApplicationController
       plan: plan
     )
 
-    redirect_to plans_path, notice: "Assinatura ativada com sucesso."
+    redirect_to subscription_path, notice: "Assinatura ativada com sucesso."
   rescue ActiveRecord::RecordInvalid => error
     redirect_to plans_path, alert: error.record.errors.full_messages.to_sentence
   rescue ActiveRecord::RecordNotFound
     redirect_to plans_path, alert: "Plano não encontrado."
+  end
+
+  def show
+    @subscription = current_user.subscriptions.active.includes(:plan, :invoices).first
+    @invoices = @subscription&.invoices&.order(reference_month: :desc) || []
+  end
+
+  def destroy
+    subscription = current_user.subscriptions.active.first
+
+    return redirect_to subscription_path, alert: "Nenhuma assinatura ativa encontrada." unless subscription
+
+    Subscriptions::Cancel.call(subscription: subscription)
+
+    redirect_to subscription_path, notice: "Assinatura cancelada com sucesso."
   end
 end
