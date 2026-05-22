@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "subscriptions/create"
   root "home#index"
 
   get "up" => "rails/health#show", as: :rails_health_check
@@ -6,6 +7,9 @@ Rails.application.routes.draw do
   get "/login", to: "sessions#new", as: :login
   post "/login", to: "sessions#create"
   delete "/logout", to: "sessions#destroy", as: :logout
+
+  resources :plans, only: [ :index ]
+  resources :subscriptions, only: [ :create ]
 
   namespace :api do
     namespace :v1 do

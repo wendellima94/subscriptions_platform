@@ -20,7 +20,7 @@
         <%= link_to "Home", root_path, class: "text-slate-600 hover:text-slate-900" %>
 
         <% if user_signed_in? %>
-          <%= link_to "Planos", "#", class: "text-slate-600 hover:text-slate-900" %>
+         <%= link_to "Planos", plans_path, class: "text-slate-600 hover:text-slate-900" %>
           <%= link_to "Minha assinatura", "#", class: "text-slate-600 hover:text-slate-900" %>
 
           <% if current_user.role_admin? %>
