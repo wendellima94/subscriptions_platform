@@ -10,6 +10,8 @@ module Subscriptions
     end
 
     def call
+      raise InactivePlanError, "plan is inactive" unless plan.active?
+
       ActiveRecord::Base.transaction do
         subscription = Subscription.create!(
           user: user,

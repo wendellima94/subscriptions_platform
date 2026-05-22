@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_user!
 
       def create
-        plan = Plan.active.find(params[:plan_id])
+        plan = Plan.find(params[:plan_id])
 
         subscription = Subscriptions::Activate.call(
           user: current_user,
@@ -22,6 +22,8 @@ module Api
             periodicity: subscription.plan.periodicity
           }
         }, status: :created
+      rescue Subscriptions::InactivePlanError
+        render json: { error: "Plan is inactive" }, status: :unprocessable_entity
       rescue ActiveRecord::RecordInvalid => error
         render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
       rescue ActiveRecord::RecordNotFound

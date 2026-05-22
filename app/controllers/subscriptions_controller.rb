@@ -2,7 +2,7 @@ class SubscriptionsController < ApplicationController
   before_action :require_authentication
 
   def create
-    plan = Plan.active.find(params[:plan_id])
+    plan = Plan.find(params[:plan_id])
 
     Subscriptions::Activate.call(
       user: current_user,
@@ -10,6 +10,8 @@ class SubscriptionsController < ApplicationController
     )
 
     redirect_to subscription_path, notice: "Assinatura ativada com sucesso."
+  rescue Subscriptions::InactivePlanError
+    redirect_to plans_path, alert: "Plano indisponível para assinatura."
   rescue ActiveRecord::RecordInvalid => error
     redirect_to plans_path, alert: error.record.errors.full_messages.to_sentence
   rescue ActiveRecord::RecordNotFound
